@@ -87,7 +87,7 @@ def summary(day: str = typer.Option("", help="以哪天为终点"), db: Path = t
     console.print(f"合计扣分 {summary_obj.penalty_total}")
 
 
-@app.command()
+@app.command("compose")
 def compose_cmd(day: str = typer.Option(""), db: Path = typer.Option(None)) -> None:
     """成文（有 key 走模型，否则离线）。"""
     s = _settings(db)
@@ -96,7 +96,6 @@ def compose_cmd(day: str = typer.Option(""), db: Path = typer.Option(None)) -> N
     console.print(text)
 
 
-app.command(name="compose")(compose_cmd)
 
 
 @app.command()
