@@ -1,0 +1,24 @@
+{
+  "metrics": [
+    {"name": "血压高压", "value": 128, "unit": "mmHg", "on": "2026-09-02"},
+    {"name": "血压低压", "value": 82, "unit": "mmHg", "on": "2026-09-02"},
+    {"name": "空腹血糖", "value": 5.4, "unit": "mmol/L", "on": "2026-09-02"},
+    {"name": "血压高压", "value": 134, "unit": "mmHg", "on": "2026-10-08"},
+    {"name": "血压低压", "value": 86, "unit": "mmHg", "on": "2026-10-08"},
+    {"name": "空腹血糖", "value": 6.3, "unit": "mmol/L", "on": "2026-10-08"},
+    {"name": "糖化血红蛋白", "value": 6.2, "unit": "%", "on": "2026-10-08"},
+    {"name": "血压高压", "value": 141, "unit": "mmHg", "on": "2026-11-19"},
+    {"name": "血压低压", "value": 88, "unit": "mmHg", "on": "2026-11-19"},
+    {"name": "空腹血糖", "value": 6.5, "unit": "mmol/L", "on": "2026-11-19"},
+    {"name": "TSH", "value": 3.1, "unit": "mIU/L", "on": "2026-10-08"},
+    {"name": "体重", "value": 58.4, "unit": "kg", "on": "2026-11-19"}
+  ],
+  "meds": [
+    {"name": "氨氯地平", "dose": "5mg", "per_day": 1, "start": "2026-08-20", "end": "2026-11-30", "taken": 86},
+    {"name": "二甲双胍", "dose": "0.5g", "per_day": 2, "start": "2026-08-20", "end": "2026-11-30", "taken": 132}
+  ],
+  "visits": [
+    {"on": "2026-08-20", "doctor": "内分泌科 王医生", "notes": "初诊，开二甲双胍"},
+    {"on": "2026-10-08", "doctor": "内分泌科 王医生", "notes": "复查糖化 6.2"}
+  ]
+}
