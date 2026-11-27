@@ -10,3 +10,4 @@ def test_llm_budget_defaults_to_20s_once():
     client = build_llm("http://127.0.0.1:11434/v1", "x", "qwen2.5:1.5b", "sys")
     assert client.timeout == 20.0
     assert client.retries == 1
+    assert client.max_tokens == 2000
