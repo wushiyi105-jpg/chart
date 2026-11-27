@@ -4,6 +4,7 @@ from __future__ import annotations
 
 from datetime import date, timedelta
 
+from .guard import NUM
 from .models import Med, Metric, Summary, Visit
 from .rules.adherence import missed, rate
 from .rules.metrics import latest, out_of_range
@@ -50,6 +51,27 @@ def build(
     visit_rows = [
         f"{v.on} {v.doctor}" + (f"：{v.notes}" if v.notes else "") for v in visits
     ]
+    allowed: set[str] = set()
+
+    def allow(text: str) -> None:
+        allowed.update(NUM.findall(text))
+
+    allow(period)
+    for m in metrics:
+        allow(f"{m.value:g}")
+        allow(m.taken_on.isoformat())
+    for med in meds:
+        allow(med.dose)
+        allow(str(med.per_day))
+        allow(f"{rate(med, today):.0%}")
+        allow(med.start.isoformat())
+        allow(med.end.isoformat())
+    for v in visits:
+        allow(v.on.isoformat())
+    for low, high, _ in ranges.values():
+        allow(f"{low:g}")
+        allow(f"{high:g}")
+
     return Summary(
         period=period,
         metrics=rows,
@@ -57,4 +79,5 @@ def build(
         visits=visit_rows,
         questions=list(QUESTIONS),
         findings=findings,
+        allowed=allowed,
     )

@@ -50,6 +50,7 @@ class Summary:
     visits: list[str] = field(default_factory=list)
     questions: list[str] = field(default_factory=list)
     findings: list[Finding] = field(default_factory=list)
+    allowed: set[str] = field(default_factory=set)
     body: str = ""
 
     @property

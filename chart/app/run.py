@@ -35,10 +35,7 @@ def build_for(store: StorePort, settings: Settings, today: date | None = None) -
 
 
 def allowed_numbers(summary: Summary) -> set[str]:
-    from ..domain.guard import NUM
-
-    text = "\n".join(summary.metrics + summary.meds + summary.visits + summary.questions)
-    return set(NUM.findall(text))
+    return set(summary.allowed)
 
 
 def compose(
