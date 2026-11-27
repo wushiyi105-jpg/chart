@@ -10,6 +10,7 @@ import typer
 from rich.console import Console
 
 from ..adapters.llm import build_llm
+from ..adapters.notify import WebhookNotifier
 from ..adapters.store import SqliteStore
 from ..app.run import PROMPT, build_for, compose
 from ..config import Settings
@@ -31,6 +32,13 @@ def _settings(db: Path | None, port: int | None = None) -> Settings:
 
 def _store(settings: Settings) -> SqliteStore:
     return SqliteStore(settings.db_path)
+
+
+def _notify(settings: Settings, text: str) -> None:
+    if not text or not settings.webhook_url:
+        return
+    ok = WebhookNotifier(settings.webhook_url).send(text)
+    console.print(f"[dim]webhook {'ok' if ok else 'failed'}[/]")
 
 
 @app.command()
@@ -93,9 +101,21 @@ def compose_cmd(day: str = typer.Option(""), db: Path = typer.Option(None)) -> N
     """成文（有 key 走模型，否则离线）。"""
     s = _settings(db)
     d = date.fromisoformat(day) if day else date.today()
-    llm = build_llm(s.llm_base_url, s.llm_api_key, s.llm_model, PROMPT) if s.llm_enabled else None
+    llm = (
+        build_llm(
+            s.llm_base_url,
+            s.llm_api_key,
+            s.llm_model,
+            PROMPT,
+            timeout=s.llm_timeout,
+            retries=1,
+        )
+        if s.llm_enabled
+        else None
+    )
     _, text = compose(_store(s), s, d, llm)
     console.print(text)
+    _notify(s, text)
 
 
 @app.command()

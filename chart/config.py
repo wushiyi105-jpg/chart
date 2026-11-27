@@ -15,7 +15,7 @@ class Settings(BaseSettings):
     llm_base_url: str = "https://api.deepseek.com"
     llm_api_key: str = ""
     llm_model: str = "deepseek-flash"
-    llm_timeout: float = 30.0
+    llm_timeout: float = 20.0
     webhook_url: str = ""
     TZ: str = "Asia/Shanghai"
     visit_cycle_days: int = 90

@@ -20,7 +20,18 @@ TEMPLATES = Jinja2Templates(directory=str(Path(__file__).resolve().parents[2] / 
 def create_app(settings: Settings, store: SqliteStore | None = None) -> FastAPI:
     app = FastAPI(title="Chart", version="1.0.0")
     store = store or SqliteStore(settings.db_path)
-    llm = build_llm(settings.llm_base_url, settings.llm_api_key, settings.llm_model, PROMPT) if settings.llm_enabled else None
+    llm = (
+        build_llm(
+            settings.llm_base_url,
+            settings.llm_api_key,
+            settings.llm_model,
+            PROMPT,
+            timeout=settings.llm_timeout,
+            retries=1,
+        )
+        if settings.llm_enabled
+        else None
+    )
 
     def render(request: Request) -> HTMLResponse:
         summary = build_for(store, settings)

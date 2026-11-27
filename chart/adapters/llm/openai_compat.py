@@ -21,8 +21,8 @@ class OpenAICompatLLM:
         api_key: str,
         model: str,
         system_prompt: str,
-        timeout: float = 30.0,
-        retries: int = 3,
+        timeout: float = 20.0,
+        retries: int = 1,
         max_tokens: int = 600,
     ) -> None:
         self.base_url = base_url.rstrip("/")
@@ -74,5 +74,12 @@ class OpenAICompatLLM:
         raise LLMError(last or "模型调用失败")
 
 
-def build_llm(base_url: str, api_key: str, model: str, system_prompt: str) -> OpenAICompatLLM:
-    return OpenAICompatLLM(base_url, api_key, model, system_prompt)
+def build_llm(
+    base_url: str,
+    api_key: str,
+    model: str,
+    system_prompt: str,
+    timeout: float = 20.0,
+    retries: int = 1,
+) -> OpenAICompatLLM:
+    return OpenAICompatLLM(base_url, api_key, model, system_prompt, timeout=timeout, retries=retries)
