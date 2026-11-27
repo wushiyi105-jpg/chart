@@ -9,8 +9,9 @@ from pathlib import Path
 import typer
 from rich.console import Console
 
+from ..adapters.llm import build_llm
 from ..adapters.store import SqliteStore
-from ..app.run import build_for, compose
+from ..app.run import PROMPT, build_for, compose
 from ..config import Settings
 from ..config import settings as default_settings
 from ..doctor import main as doctor_main
@@ -92,7 +93,8 @@ def compose_cmd(day: str = typer.Option(""), db: Path = typer.Option(None)) -> N
     """成文（有 key 走模型，否则离线）。"""
     s = _settings(db)
     d = date.fromisoformat(day) if day else date.today()
-    _, text = compose(_store(s), s, d)
+    llm = build_llm(s.llm_base_url, s.llm_api_key, s.llm_model, PROMPT) if s.llm_enabled else None
+    _, text = compose(_store(s), s, d, llm)
     console.print(text)
 
 

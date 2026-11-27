@@ -6,6 +6,8 @@ import json
 from datetime import date
 from pathlib import Path
 
+from alembic import command
+from alembic.config import Config
 from sqlalchemy import Date, Float, Integer, String, Text, inspect, select
 from sqlalchemy.orm import Mapped, Session, mapped_column, sessionmaker
 
@@ -54,6 +56,14 @@ class EpisodeRow(Base):
     severity: Mapped[str] = mapped_column(String(12), default="mild")
 
 
+def _upgrade_schema(engine) -> None:
+    root = next(p for p in Path(__file__).resolve().parents if (p / "alembic.ini").exists())
+    cfg = Config(str(root / "alembic.ini"))
+    cfg.set_main_option("script_location", str(root / "migrations"))
+    cfg.set_main_option("sqlalchemy.url", f"sqlite:///{engine.url.database}")
+    command.upgrade(cfg, "head")
+
+
 class SqliteStore:
     def __init__(self, path: Path | str) -> None:
         self.path = Path(path)
@@ -62,7 +72,7 @@ class SqliteStore:
         self.init_schema()
 
     def init_schema(self) -> None:
-        Base.metadata.create_all(self.engine)
+        _upgrade_schema(self.engine)
 
     def schema_ok(self) -> bool:
         return {"metrics", "meds", "visits", "episodes"} <= set(
