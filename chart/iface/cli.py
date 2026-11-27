@@ -98,8 +98,6 @@ def compose_cmd(day: str = typer.Option(""), db: Path = typer.Option(None)) -> N
     console.print(text)
 
 
-
-
 @app.command()
 def doctor(db: Path = typer.Option(None)) -> None:
     """四项体检。"""

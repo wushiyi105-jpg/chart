@@ -51,6 +51,9 @@ No. Lines with advice or diagnosis wording are discarded by the guard.
 **Where are the reference ranges?**
 `data/ranges.json`; edit them to match your lab report.
 
+**Was the Docker image verified?**
+Docker is not installed on the build machine, so `docker build .` was not run and the image is unverified; only the Dockerfile and ports were checked statically.
+
 ## Commands
 
 See the Chinese README (`README.md`) for the command table with flags; every command supports `--help`.
@@ -63,13 +66,13 @@ FastAPI + Uvicorn, Jinja2, pydantic / pydantic-settings, httpx, Typer + Rich, SQ
 
 ```mermaid
 graph LR
-  A[指标记录] --> M[聚合最近一次]
-  B[用药记录] --> M
-  C[复诊记录] --> M
-  M --> R[规则：越界 / 依从 / 复诊周期 / 缺数据]
-  R --> P[模型成文 或 离线模板]
-  P --> G[数字守卫 + 判断词守卫]
-  G --> O[就诊摘要]
+  A[metric entries] --> M[latest aggregation]
+  B[medication log] --> M
+  C[visit log] --> M
+  M --> R[rules: out-of-range / adherence / visit interval / missing data]
+  R --> P[model write-up or offline template]
+  P --> G[number + claim guard]
+  G --> O[visit summary]
 ```
 
 ## Layout
