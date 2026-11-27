@@ -12,10 +12,12 @@ from rich.console import Console
 from ..adapters.llm import build_llm
 from ..adapters.notify import WebhookNotifier
 from ..adapters.store import SqliteStore
+from ..app.report import build_report as doctor_report
 from ..app.run import PROMPT, build_for, compose
 from ..config import Settings
 from ..config import settings as default_settings
 from ..doctor import main as doctor_main
+from ..domain.catalog import demo_metrics
 
 app = typer.Typer(help="病程记录：三个月压成一页", no_args_is_help=True)
 console = Console()
@@ -42,7 +44,10 @@ def _notify(settings: Settings, text: str) -> None:
 
 
 @app.command()
-def seed(db: Path = typer.Option(None)) -> None:
+def seed(
+    db: Path = typer.Option(None),
+    demo: bool = typer.Option(False, "--demo", help="额外生成 30 天 × 45 项演示数据"),
+) -> None:
     """写入三个月的指标、用药与复诊。"""
     s = _settings(db)
     store = _store(s)
@@ -58,8 +63,14 @@ def seed(db: Path = typer.Option(None)) -> None:
         )
     for row in data["visits"]:
         store.add_visit(date.fromisoformat(row["on"]), row["doctor"], row.get("notes", ""))
+    extra = 0
+    if demo:
+        for name, value, unit, day in demo_metrics(date.today()):
+            store.add_metric(name, value, unit, day)
+            extra += 1
     console.print(
         f"已写入 {len(data['metrics'])} 条指标、{len(data['meds'])} 种用药、{len(data['visits'])} 次复诊"
+        + (f"，演示数据 {extra} 条" if demo else "")
     )
 
 
@@ -94,6 +105,26 @@ def summary(day: str = typer.Option("", help="以哪天为终点"), db: Path = t
         for f in summary_obj.findings:
             console.print(f"  [yellow]{f.rule_id}[/] -{f.penalty} {f.message}")
     console.print(f"合计扣分 {summary_obj.penalty_total}")
+
+
+@app.command()
+def report(
+    day: str = typer.Option("", help="以哪天为终点"),
+    out: Path = typer.Option(None, help="输出 Markdown；不填打印到终端"),
+    db: Path = typer.Option(None),
+) -> None:
+    """给医生的一页摘要：红线、异常、三次趋势、8 个问题。"""
+    s = _settings(db)
+    store = _store(s)
+    d = date.fromisoformat(day) if day else date.today()
+    summary = build_for(store, s, d)
+    text = doctor_report(store, summary, d)
+    if out:
+        out.parent.mkdir(parents=True, exist_ok=True)
+        out.write_text(text, encoding="utf-8")
+        console.print(f"[green]已写出[/] {out}（{len(text.splitlines())} 行）")
+    else:
+        console.print(text)
 
 
 @app.command("compose")

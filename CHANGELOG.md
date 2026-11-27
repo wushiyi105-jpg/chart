@@ -2,6 +2,9 @@
 
 ## Unreleased
 
+- 新增 `report`：给医生的一页摘要，含红线、异常表、最近三次趋势、用药复诊、8 个问题
+- 指标区间从 8 项扩到 45 项；新增 8 个症状问题与 7 条急症红线
+- `seed --demo` 生成 30 天 × 45 项 = 1350 条演示数据，方便验证趋势与异常
 - `0001_init` 改为显式 `op.create_table` / `op.create_index`，运行期走 `alembic upgrade`
 - `app/` 只依赖 `ports`，新增内存假实现用例
 - 开 ruff `E2`/`E3`；CI 增加 `docker build` 与 `/health` 探活

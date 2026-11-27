@@ -1,0 +1,11 @@
+{
+  "flags": [
+    {"metric": "血压高压", "op": ">=", "value": 180, "message": "血压高压 ≥180 mmHg，今天复测并联系医生。"},
+    {"metric": "血压低压", "op": ">=", "value": 110, "message": "血压低压 ≥110 mmHg，按急症处理。"},
+    {"metric": "空腹血糖", "op": ">=", "value": 13.9, "message": "空腹血糖 ≥13.9 mmol/L，查酮体并联系医生。"},
+    {"metric": "钾", "op": ">=", "value": 6.0, "message": "血钾 ≥6.0 mmol/L，立即就医，不要自行补钾。"},
+    {"metric": "钠", "op": "<=", "value": 125, "message": "血钠 ≤125 mmol/L，尽快就医。"},
+    {"metric": "eGFR", "op": "<", "value": 30, "message": "eGFR <30，尽快肾内科就诊。"},
+    {"metric": "血红蛋白", "op": "<", "value": 70, "message": "血红蛋白 <70 g/L，尽快查明贫血原因。"}
+  ]
+}
