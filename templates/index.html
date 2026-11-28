@@ -1,6 +1,6 @@
 {% from "_macros.html" import shell, head, stats, card, tag, empty, note %}
-{% call shell("Chart", "病程记录", true) %}
-{{ head("病程记录", summary.period ~ " · 今天 " ~ today) }}
+{% call shell("Chart", "临床记录摘要", true) %}
+{{ head("复诊前，把这段时间整理成一页", summary.period ~ " · 今天 " ~ today) }}
 
 {{ stats([
   ("指标", summary.metrics|length, "项"),

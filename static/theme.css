@@ -1,0 +1,27 @@
+:root {
+  --bg: #FAF8F3;
+  --bg-subtle: #F4F1E9;
+  --bg-muted: #E9E5DA;
+  --card: #FFFFFF;
+  --text: #1C211F;
+  --text-2: #4c5551;
+  --text-3: #626a66;
+  --text-4: #696f6c;
+  --border: #E2DED2;
+  --border-2: #D3CEC0;
+  --border-3: #C0BAA9;
+  --accent: #235E5A;
+  --accent-soft: #E4F0EE;
+  --accent-ink: #1A4744;
+  --radius: 8px;
+  --radius-sm: 6px;
+  --radius-lg: 12px;
+}
+:root[data-theme="dark"] {
+  --accent: #6FB0AA;
+  --accent-soft: #12312F;
+  --accent-ink: #A9D8D3;
+}
+.page-head h1 { font-family: "Songti SC", "SimSun", serif; }
+.table .num, .mono-num { font-family: var(--mono); }
+
