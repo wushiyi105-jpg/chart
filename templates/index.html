@@ -1,57 +1,65 @@
-<!doctype html>
-<html lang="zh-CN">
-<head>
-<meta charset="utf-8">
-<title>Chart · 病程记录</title>
-<style>
-  :root{--bg:#0d1117;--panel:#161b22;--line:#26303d;--ink:#e6edf3;--dim:#8b949e;--accent:#4f9cf9}
-  body{margin:0;background:var(--bg);color:var(--ink);font:15px/1.65 -apple-system,"PingFang SC",sans-serif}
-  .wrap{max-width:900px;margin:0 auto;padding:40px 20px 80px}
-  h1{font-size:22px;margin:0 0 4px}
-  .sub{color:var(--dim);font-size:13px;margin-bottom:22px}
-  form{display:flex;gap:10px;flex-wrap:wrap;margin-bottom:18px;align-items:center}
-  input{background:#0d1117;border:1px solid var(--line);color:var(--ink);border-radius:8px;padding:9px 12px;font-size:14px}
-  button{background:var(--accent);color:#0d1117;border:none;border-radius:8px;padding:9px 16px;font-weight:600;cursor:pointer}
-  .card{background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:18px 20px;margin-bottom:14px}
-  .card h2{font-size:15px;margin:0 0 8px;color:var(--accent)}
-  ul{margin:0;padding-left:18px}
-  li{margin:4px 0}
-  .finding{color:#f0883e;font-size:13px}
-  .muted{color:var(--dim);font-size:13px}
-  a{color:var(--accent);text-decoration:none;margin-right:14px}
-</style>
-</head>
-<body>
-<div class="wrap">
-  <h1>Chart</h1>
-  <div class="sub">{{ summary.period }} · 扣分 {{ summary.penalty_total }} · 今天 {{ today }}</div>
+{% from "_macros.html" import shell, head, stats, card, tag, empty, note %}
+{% call shell("Chart", "病程记录", true) %}
+{{ head("病程记录", summary.period ~ " · 今天 " ~ today) }}
 
-  <form method="post" action="/metric">
-    <input name="name" placeholder="指标（如 血压高压）" style="flex:1;min-width:200px">
-    <input name="value" placeholder="数值" size="8">
-    <input name="unit" placeholder="单位" size="8">
-    <input name="day" value="{{ today }}" size="10">
-    <button type="submit">记一条</button>
+{{ stats([
+  ("指标", summary.metrics|length, "项"),
+  ("用药", summary.meds|length, "条"),
+  ("复诊", summary.visits|length, "次"),
+  ("扣分", summary.penalty_total, "")
+]) }}
+
+{% call card("记录与成文") %}
+<div class="form-block">
+  <div class="form-title">记一条指标</div>
+  <form method="post" action="/metric" class="row">
+    <div class="field" style="flex:2 1 240px"><label>指标</label><input class="input" name="name" placeholder="如 血压高压"></div>
+    <div class="field"><label>数值</label><input class="input" name="value" placeholder="数值"></div>
+    <div class="field"><label>单位</label><input class="input" name="unit" placeholder="单位"></div>
+    <div class="field"><label>日期</label><input class="input" name="day" value="{{ today }}"></div>
+    <div class="field field--auto"><button class="btn btn--primary" type="submit">记一条</button></div>
   </form>
-
-  <form method="post" action="/compose">
-    <button type="submit" style="background:#21262d;color:var(--ink);border:1px solid var(--line)">生成一页纸</button>
-    <span class="muted">给医生看，只陈述记录</span>
-  </form>
-
-  <div class="card"><h2>近三个月指标</h2><ul>{% for x in summary.metrics %}<li>{{ x }}</li>{% endfor %}</ul></div>
-  <div class="card"><h2>用药</h2><ul>{% for x in summary.meds %}<li>{{ x }}</li>{% endfor %}</ul></div>
-  <div class="card"><h2>复诊</h2><ul>{% for x in summary.visits %}<li>{{ x }}</li>{% endfor %}</ul></div>
-  <div class="card"><h2>想问医生</h2><ul>{% for x in summary.questions %}<li>{{ x }}</li>{% endfor %}</ul></div>
-
-  {% if summary.findings %}
-  <div class="card"><h2>需要留意（本地规则）</h2>
-    {% for f in summary.findings %}<div class="finding">{{ f.rule_id }} -{{ f.penalty }} · {{ f.message }}</div>{% endfor %}
-  </div>
-  {% endif %}
-
-  <p><a href="/export.md">导出 Markdown</a><a href="/health">健康检查</a></p>
 </div>
-</body>
-</html>
+<div class="form-block">
+  <div class="form-title">生成一页纸</div>
+  <form method="post" action="/compose" class="form-actions">
+    <button class="btn" type="submit">生成一页纸</button>
+    <span class="muted" style="color:var(--text-3);font-size:var(--fs-xs)">给医生看，只陈述记录</span>
+  </form>
+</div>
+{% endcall %}
 
+<div class="cols section-gap">
+  <div>
+    {% call card("近三个月指标") %}
+      {% if summary.metrics %}<div class="stack">{% for x in summary.metrics %}<div class="list-row"><span class="t">{{ x }}</span></div>{% endfor %}</div>{% else %}{{ empty("还没有指标", "在上方记一条，或先跑 seed 写入示例。") }}{% endif %}
+    {% endcall %}
+    {% call card("用药") %}
+      {% if summary.meds %}<div class="stack">{% for x in summary.meds %}<div class="list-row"><span class="t">{{ x }}</span></div>{% endfor %}</div>{% else %}{{ empty("没有用药记录") }}{% endif %}
+    {% endcall %}
+  </div>
+  <div>
+    {% call card("复诊") %}
+      {% if summary.visits %}<div class="stack">{% for x in summary.visits %}<div class="list-row"><span class="t">{{ x }}</span></div>{% endfor %}</div>{% else %}{{ empty("没有复诊记录") }}{% endif %}
+    {% endcall %}
+    {% call card("想问医生") %}
+      {% if summary.questions %}<div class="stack">{% for x in summary.questions %}<div class="list-row"><span class="t">{{ x }}</span></div>{% endfor %}</div>{% else %}{{ empty("还没有待问问题") }}{% endif %}
+    {% endcall %}
+  </div>
+</div>
+
+{% if summary.findings %}
+{% call card("需要留意", "本地规则") %}
+  <div class="stack">
+  {% for f in summary.findings %}
+    <div class="list-row"><span class="t">{{ f.message }}</span>{{ tag(f.rule_id ~ " · −" ~ f.penalty, "warn") }}</div>
+  {% endfor %}
+  </div>
+{% endcall %}
+{% endif %}
+
+<div class="form-actions">
+  <a class="btn" href="/export.md">导出 Markdown</a>
+  <a class="btn btn--ghost" href="/health">健康检查</a>
+</div>
+{% endcall %}
